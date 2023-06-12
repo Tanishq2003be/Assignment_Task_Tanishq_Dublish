@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Tabbed Interface</title>
+    <link rel="stylesheet" type="text/css" href="styles.css">
+</head>
+
+<body>
+    <div id="tab-navigation"></div>
+    <div id="tab-content"></div>
+
+    <button id="add-button">+</button>
+
+    <script>
+        // Initialize variables
+        var tabs = [{
+            id: 1,
+            name: 'Tab 1',
+            gender: '',
+            content: ''
+        }];
+        var activeTab = 1;
+
+        // Add a new tab
+        function addTab() {
+            if (tabs.length >= 5) {
+                return;
+            }
+
+            var newTabId = tabs.length + 1;
+            var newTab = {
+                id: newTabId,
+                name: 'Tab ' + newTabId,
+                gender: '',
+                content: ''
+            };
+
+            tabs.push(newTab);
+            activeTab = newTabId;
+
+            renderTabs();
+        }
+
+        // Remove a tab
+        function removeTab(tabId) {
+            var tabIndex = tabs.findIndex(function(tab) {
+                return tab.id === tabId;
+            });
+
+            if (tabIndex !== -1) {
+                tabs.splice(tabIndex, 1);
+
+                if (activeTab === tabId) {
+                    activeTab = tabs.length > 0 ? tabs[0].id : null;
+                }
+
+                renderTabs();
+            }
+        }
+
+        // Switch tabs
+        function switchTab(tabId) {
+            activeTab = tabId;
+            renderTabs();
+        }
+
+        // Render the tabs
+        // Render the tabs
+        function renderTabs() {
+            var tabNavigation = document.getElementById('tab-navigation');
+            var tabContent = document.getElementById('tab-content');
+
+            // Clear the existing tabs
+            tabNavigation.innerHTML = '';
+            tabContent.innerHTML = '';
+
+            // Render the tab navigation
+            tabs.forEach(function(tab) {
+                var tabLink = document.createElement('li');
+                tabLink.className = tab.id === activeTab ? 'tab-link active' : 'tab-link';
+                tabLink.innerHTML = tab.name;
+                tabLink.addEventListener('click', function() {
+                    switchTab(tab.id);
+                });
+
+                if (tab.id !== 1) {
+                    var tabClose = document.createElement('span');
+                    tabClose.className = 'tab-close';
+                    tabClose.innerHTML = '&times;';
+                    tabClose.addEventListener('click', function() {
+                        removeTab(tab.id);
+                    });
+
+                    tabLink.appendChild(tabClose);
+                }
+
+                tabNavigation.appendChild(tabLink);
+            });
+
+            // Add the plus sign if the maximum number of tabs is not reached
+            if (tabs.length < 5) {
+                var addTabLink = document.createElement('li');
+                addTabLink.className = 'tab-link add-tab';
+                addTabLink.innerHTML = '+';
+                addTabLink.addEventListener('click', addTab);
+                tabNavigation.appendChild(addTabLink);
+            }
+
+            // Render the tab content
+            tabs.forEach(function(tab) {
+                var tabElement = document.createElement('div');
+                tabElement.className = tab.id === activeTab ? 'tab active' : 'tab';
+
+                if (tab.id === activeTab) {
+                    var genderBox = document.createElement('div');
+                    genderBox.className = 'gender-box';
+                    genderBox.innerHTML = '<label for="gender">Gender</label>' +
+                        '<select id="gender" onchange="handleGenderChange(event)">' +
+                        '<option value="">Select Gender</option>' +
+                        '<option value="male"' + (tab.gender === 'male' ? ' selected' : '') + '>Male</option>' +
+                        '<option value="female"' + (tab.gender === 'female' ? ' selected' : '') + '>Female</option>' +
+                        '<option value="other"' + (tab.gender === 'other' ? ' selected' : '') + '>Other</option>' +
+                        '</select>';
+
+                    tabElement.appendChild(genderBox);
+
+                    var inputContainer = document.createElement('div');
+                    inputContainer.className = 'input-container';
+                    inputContainer.innerHTML = '<label for="name">Name</label>' +
+                        '<input type="text" id="name"  value="">';
+
+                    tabElement.appendChild(inputContainer);
+                }
+
+                tabContent.appendChild(tabElement);
+            });
+
+            // Show/hide the add button
+            var addButton = document.getElementById('add-button');
+            addButton.style.display = tabs.length <= 5 ? 'none' : 'block';
+        }
+
+
+        // Handle name change
+        function handleNameChange(event) {
+            var updatedTabs = tabs.map(function(tab) {
+                if (tab.id === activeTab) {
+                    tab.name = event.target.value;
+                }
+                return tab;
+            });
+
+            tabs = updatedTabs;
+            renderTabs();
+        }
+
+        // Handle gender change
+        function handleGenderChange(event) {
+            var updatedTabs = tabs.map(function(tab) {
+                if (tab.id === activeTab) {
+                    tab.gender = event.target.value;
+                }
+                return tab;
+            });
+
+            tabs = updatedTabs;
+            renderTabs();
+        }
+
+        // Add event listener to the add button
+        var addTabLink = document.getElementById('add-button');
+        addTabLink.addEventListener('click', addTab);
+
+        // Initial render
+        renderTabs();
+    </script>
+</body>
+
+</html>
